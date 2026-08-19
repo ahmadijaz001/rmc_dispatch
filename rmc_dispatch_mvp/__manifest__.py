@@ -1,9 +1,11 @@
 {
     'name': 'Bulk Material Dispatch',
-    'version': '19.0.1.1.2',
+    'version': '19.0.1.1.3',
     'summary': 'Batch, dispatch, deliver and invoice concrete, asphalt, precast and other '
                'bulk-batched construction materials, m³ by m³.',
-    'license': 'LGPL-3',
+    'license': 'OPL-1',
+    'price': 49.0,
+    'currency': 'USD',
     'category': 'Manufacturing/Concrete & Bulk Material Dispatch',
     'author': 'aKross Information Technology (sales@akross.ae)',
     'website': 'https://akross.ae',
