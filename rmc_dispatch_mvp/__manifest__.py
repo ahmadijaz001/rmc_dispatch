@@ -1,12 +1,13 @@
 {
-    'name': 'Concrete & Bulk Material Dispatch',
-    'version': '19.0.1.1.1',
+    'name': 'Bulk Material Dispatch',
+    'version': '19.0.1.1.2',
     'summary': 'Batch, dispatch, deliver and invoice concrete, asphalt, precast and other '
                'bulk-batched construction materials, m³ by m³.',
     'license': 'LGPL-3',
     'category': 'Manufacturing/Concrete & Bulk Material Dispatch',
     'author': 'aKross Information Technology (sales@akross.ae)',
     'website': 'https://akross.ae',
+    'support': 'sales@akross.ae',
     'depends': [
         'base', 'mail', 'product', 'uom',
         'sale_management', 'project', 'stock', 'mrp',
