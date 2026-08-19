@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="rule_rmc_load_driver_own" model="ir.rule">
+        <field name="name">RMC Load: driver sees only own loads</field>
+        <field name="model_id" ref="model_rmc_load"/>
+        <field name="domain_force">[('driver_id', '=', user.partner_id.id)]</field>
+        <field name="groups" eval="[(4, ref('group_rmc_driver'))]"/>
+    </record>
+
+    <!-- RMC Manager implies group_rmc_driver (see rmc_security_groups.xml), so without this
+         rule the driver-only restriction above would also apply to managers - ir.rule group
+         membership is transitive (res.users.has_group() walks all_group_ids), and a manager is
+         almost never literally assigned as a load's driver, so they would see zero loads. This
+         rule ORs an unrestricted domain in for anyone who is (also) a manager, cancelling the
+         restriction out for them while leaving real drivers correctly restricted. -->
+    <record id="rule_rmc_load_manager_sees_all" model="ir.rule">
+        <field name="name">RMC Load: manager sees all loads</field>
+        <field name="model_id" ref="model_rmc_load"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_rmc_manager'))]"/>
+    </record>
+
+    <record id="rule_rmc_project_rate_multi_company" model="ir.rule">
+        <field name="name">RMC Project Rate: multi-company</field>
+        <field name="model_id" ref="model_rmc_project_rate"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_rmc_calloff_multi_company" model="ir.rule">
+        <field name="name">RMC Call-off: multi-company</field>
+        <field name="model_id" ref="model_rmc_calloff"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_rmc_load_multi_company" model="ir.rule">
+        <field name="name">RMC Load: multi-company</field>
+        <field name="model_id" ref="model_rmc_load"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_rmc_qc_sample_multi_company" model="ir.rule">
+        <field name="name">RMC QC Sample: multi-company</field>
+        <field name="model_id" ref="model_rmc_qc_sample"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+</odoo>

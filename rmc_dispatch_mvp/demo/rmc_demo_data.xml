@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Enable credit checking for the demo so the call-off shows a real 'approved' status. -->
+    <record id="base.main_company" model="res.company">
+        <field name="account_use_credit_limit" eval="True"/>
+        <field name="rmc_default_load_size_m3">10</field>
+    </record>
+
+    <record id="demo_partner_abc_contracting" model="res.partner">
+        <field name="name">ABC Contracting</field>
+        <field name="is_company" eval="True"/>
+        <field name="credit_limit">500000</field>
+    </record>
+
+    <record id="demo_partner_driver_ali" model="res.partner">
+        <field name="name">Ali Driver</field>
+        <field name="is_company" eval="False"/>
+    </record>
+
+    <!-- Project and phases -->
+    <record id="demo_project_dubai_tower_a" model="project.project">
+        <field name="name">Dubai Tower A</field>
+        <field name="partner_id" ref="demo_partner_abc_contracting"/>
+    </record>
+    <record id="demo_task_foundation" model="project.task">
+        <field name="name">Foundation</field>
+        <field name="project_id" ref="demo_project_dubai_tower_a"/>
+    </record>
+    <record id="demo_task_ground_floor_slab" model="project.task">
+        <field name="name">Ground Floor Slab</field>
+        <field name="project_id" ref="demo_project_dubai_tower_a"/>
+    </record>
+    <record id="demo_task_columns" model="project.task">
+        <field name="name">Columns</field>
+        <field name="project_id" ref="demo_project_dubai_tower_a"/>
+    </record>
+
+    <!--
+        Raw materials and the concrete grade below are created as product.product directly
+        (not product.template) so each demo xmlid IS the variant - Odoo auto-creates the
+        underlying template. This matches core's own demo-data convention (e.g.
+        mrp/data/mrp_demo.xml) and avoids the unsupported "xmlid.product_variant_id" ref
+        traversal, which is not valid Odoo ref syntax.
+    -->
+    <record id="demo_product_opc_cement" model="product.product">
+        <field name="name">OPC Cement</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="uom_id" ref="uom.product_uom_kgm"/>
+        <field name="rmc_material_type">cement</field>
+        <field name="standard_price">0.35</field>
+    </record>
+    <record id="demo_product_ggbs" model="product.product">
+        <field name="name">GGBS</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="uom_id" ref="uom.product_uom_kgm"/>
+        <field name="rmc_material_type">scm</field>
+        <field name="standard_price">0.28</field>
+    </record>
+    <record id="demo_product_microsilica" model="product.product">
+        <field name="name">Microsilica</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="uom_id" ref="uom.product_uom_kgm"/>
+        <field name="rmc_material_type">scm</field>
+        <field name="standard_price">1.2</field>
+    </record>
+    <record id="demo_product_aggregate_20mm" model="product.product">
+        <field name="name">20mm Aggregate</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="uom_id" ref="uom.product_uom_kgm"/>
+        <field name="rmc_material_type">aggregate</field>
+        <field name="standard_price">0.04</field>
+    </record>
+    <record id="demo_product_aggregate_10mm" model="product.product">
+        <field name="name">10mm Aggregate</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="uom_id" ref="uom.product_uom_kgm"/>
+        <field name="rmc_material_type">aggregate</field>
+        <field name="standard_price">0.045</field>
+    </record>
+    <record id="demo_product_crushed_sand" model="product.product">
+        <field name="name">Crushed Sand</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="uom_id" ref="uom.product_uom_kgm"/>
+        <field name="rmc_material_type">sand</field>
+        <field name="standard_price">0.035</field>
+    </record>
+    <record id="demo_product_dune_sand" model="product.product">
+        <field name="name">Dune Sand</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="uom_id" ref="uom.product_uom_kgm"/>
+        <field name="rmc_material_type">sand</field>
+        <field name="standard_price">0.02</field>
+    </record>
+    <record id="demo_product_water" model="product.product">
+        <field name="name">Water</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="uom_id" ref="uom.product_uom_litre"/>
+        <field name="rmc_material_type">water</field>
+        <field name="standard_price">0.005</field>
+    </record>
+    <record id="demo_product_admixture" model="product.product">
+        <field name="name">Admixture</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="True"/>
+        <field name="uom_id" ref="uom.product_uom_kgm"/>
+        <field name="rmc_material_type">admixture</field>
+        <field name="standard_price">3.5</field>
+    </record>
+
+    <!-- Opening stock so the demo MO can actually be completed -->
+    <record id="demo_quant_cement" model="stock.quant">
+        <field name="product_id" ref="demo_product_opc_cement"/>
+        <field name="location_id" ref="stock.stock_location_stock"/>
+        <field name="quantity">50000</field>
+    </record>
+    <record id="demo_quant_ggbs" model="stock.quant">
+        <field name="product_id" ref="demo_product_ggbs"/>
+        <field name="location_id" ref="stock.stock_location_stock"/>
+        <field name="quantity">50000</field>
+    </record>
+    <record id="demo_quant_microsilica" model="stock.quant">
+        <field name="product_id" ref="demo_product_microsilica"/>
+        <field name="location_id" ref="stock.stock_location_stock"/>
+        <field name="quantity">5000</field>
+    </record>
+    <record id="demo_quant_aggregate_20mm" model="stock.quant">
+        <field name="product_id" ref="demo_product_aggregate_20mm"/>
+        <field name="location_id" ref="stock.stock_location_stock"/>
+        <field name="quantity">200000</field>
+    </record>
+    <record id="demo_quant_aggregate_10mm" model="stock.quant">
+        <field name="product_id" ref="demo_product_aggregate_10mm"/>
+        <field name="location_id" ref="stock.stock_location_stock"/>
+        <field name="quantity">200000</field>
+    </record>
+    <record id="demo_quant_crushed_sand" model="stock.quant">
+        <field name="product_id" ref="demo_product_crushed_sand"/>
+        <field name="location_id" ref="stock.stock_location_stock"/>
+        <field name="quantity">200000</field>
+    </record>
+    <record id="demo_quant_dune_sand" model="stock.quant">
+        <field name="product_id" ref="demo_product_dune_sand"/>
+        <field name="location_id" ref="stock.stock_location_stock"/>
+        <field name="quantity">200000</field>
+    </record>
+    <record id="demo_quant_water" model="stock.quant">
+        <field name="product_id" ref="demo_product_water"/>
+        <field name="location_id" ref="stock.stock_location_stock"/>
+        <field name="quantity">100000</field>
+    </record>
+    <record id="demo_quant_admixture" model="stock.quant">
+        <field name="product_id" ref="demo_product_admixture"/>
+        <field name="location_id" ref="stock.stock_location_stock"/>
+        <field name="quantity">5000</field>
+    </record>
+
+    <!-- Concrete grade G40 -->
+    <record id="demo_product_g40" model="product.product">
+        <field name="name">Concrete G40</field>
+        <field name="type">consu</field>
+        <field name="is_storable" eval="False"/>
+        <field name="is_rmc_concrete" eval="True"/>
+        <field name="concrete_grade">G40</field>
+        <field name="uom_id" ref="uom.product_uom_cubic_meter"/>
+        <field name="target_strength">40</field>
+        <field name="default_free_unloading_minutes">45</field>
+        <field name="mix_approval_reference">DCL/MD/2026/G40-001</field>
+        <field name="list_price">280</field>
+    </record>
+
+    <!-- Standby service product, invoiced for waiting time beyond the free-unloading window -->
+    <record id="demo_product_standby_service" model="product.product">
+        <field name="name">RMC Standby / Waiting Time</field>
+        <field name="type">service</field>
+        <field name="list_price">150</field>
+    </record>
+    <record id="base.main_company" model="res.company">
+        <field name="rmc_standby_service_product_id" ref="demo_product_standby_service"/>
+    </record>
+
+    <!-- G40 mix design, for 1 m3 -->
+    <record id="demo_bom_g40" model="mrp.bom">
+        <field name="product_tmpl_id" ref="demo_product_g40_product_template"/>
+        <field name="product_qty">1</field>
+        <field name="product_uom_id" ref="uom.product_uom_cubic_meter"/>
+        <field name="consumption">flexible</field>
+        <field name="type">normal</field>
+        <field name="approval_reference">DCL/MD/2026/G40-001</field>
+        <field name="target_slump_mm">120</field>
+        <field name="target_strength">40</field>
+    </record>
+    <record id="demo_bom_g40_line_cement" model="mrp.bom.line">
+        <field name="bom_id" ref="demo_bom_g40"/>
+        <field name="product_id" ref="demo_product_opc_cement"/>
+        <field name="product_qty">280</field>
+        <field name="product_uom_id" ref="uom.product_uom_kgm"/>
+    </record>
+    <record id="demo_bom_g40_line_ggbs" model="mrp.bom.line">
+        <field name="bom_id" ref="demo_bom_g40"/>
+        <field name="product_id" ref="demo_product_ggbs"/>
+        <field name="product_qty">120</field>
+        <field name="product_uom_id" ref="uom.product_uom_kgm"/>
+    </record>
+    <record id="demo_bom_g40_line_aggregate" model="mrp.bom.line">
+        <field name="bom_id" ref="demo_bom_g40"/>
+        <field name="product_id" ref="demo_product_aggregate_20mm"/>
+        <field name="product_qty">1050</field>
+        <field name="product_uom_id" ref="uom.product_uom_kgm"/>
+    </record>
+    <record id="demo_bom_g40_line_sand" model="mrp.bom.line">
+        <field name="bom_id" ref="demo_bom_g40"/>
+        <field name="product_id" ref="demo_product_crushed_sand"/>
+        <field name="product_qty">750</field>
+        <field name="product_uom_id" ref="uom.product_uom_kgm"/>
+    </record>
+    <record id="demo_bom_g40_line_water" model="mrp.bom.line">
+        <field name="bom_id" ref="demo_bom_g40"/>
+        <field name="product_id" ref="demo_product_water"/>
+        <field name="product_qty">150</field>
+        <field name="product_uom_id" ref="uom.product_uom_litre"/>
+    </record>
+    <record id="demo_bom_g40_line_admixture" model="mrp.bom.line">
+        <field name="bom_id" ref="demo_bom_g40"/>
+        <field name="product_id" ref="demo_product_admixture"/>
+        <field name="product_qty">4</field>
+        <field name="product_uom_id" ref="uom.product_uom_kgm"/>
+    </record>
+
+    <!-- Fleet: minimal self-contained brand/model so this demo never depends on fleet's own
+         demo data being present. vehicle_type is 'car' only because fleet's core selection
+         has no 'truck' option in this version - see NOTES.md; capacity_m3/ready_for_dispatch
+         (our own fields) are what actually drive dispatch logic. -->
+    <record id="demo_vehicle_brand" model="fleet.vehicle.model.brand">
+        <field name="name">RMC Fleet</field>
+    </record>
+    <record id="demo_vehicle_model" model="fleet.vehicle.model">
+        <field name="name">Concrete Mixer</field>
+        <field name="brand_id" ref="demo_vehicle_brand"/>
+        <field name="vehicle_type">car</field>
+    </record>
+    <record id="demo_fleet_vehicle_truck_12" model="fleet.vehicle">
+        <field name="model_id" ref="demo_vehicle_model"/>
+        <field name="license_plate">TRUCK-12</field>
+        <field name="driver_id" ref="demo_partner_driver_ali"/>
+        <field name="capacity_m3">10</field>
+        <field name="ready_for_dispatch" eval="True"/>
+    </record>
+    <record id="demo_fleet_vehicle_truck_18" model="fleet.vehicle">
+        <field name="model_id" ref="demo_vehicle_model"/>
+        <field name="license_plate">TRUCK-18</field>
+        <field name="driver_id" ref="demo_partner_driver_ali"/>
+        <field name="capacity_m3">10</field>
+        <field name="ready_for_dispatch" eval="True"/>
+    </record>
+
+    <!-- Sale order: 120 m3 G40, the contracted quantity. Confirmed in the post_init_hook,
+         not here, so the confirmation runs through action_confirm() with its normal
+         side-effects rather than a fabricated state - see NOTES.md / README. -->
+    <record id="demo_sale_order_g40" model="sale.order">
+        <field name="partner_id" ref="demo_partner_abc_contracting"/>
+    </record>
+    <record id="demo_sale_order_line_g40" model="sale.order.line">
+        <field name="order_id" ref="demo_sale_order_g40"/>
+        <field name="product_id" ref="demo_product_g40"/>
+        <field name="product_uom_qty">120</field>
+        <field name="product_uom_id" ref="uom.product_uom_cubic_meter"/>
+        <field name="price_unit">280</field>
+        <field name="rmc_project_id" ref="demo_project_dubai_tower_a"/>
+    </record>
+
+    <!-- Project rate cards: project-level 280, phase-level exception on Foundation at 290. -->
+    <record id="demo_rate_dubai_tower_a_g40" model="rmc.project.rate">
+        <field name="project_id" ref="demo_project_dubai_tower_a"/>
+        <field name="product_id" ref="demo_product_g40"/>
+        <field name="rate_per_m3">280</field>
+        <field name="free_unloading_minutes">45</field>
+        <field name="standby_rate_per_hour">150</field>
+        <field name="date_from" eval="'%s-01-01' % datetime.today().year"/>
+        <field name="sale_order_id" ref="demo_sale_order_g40"/>
+        <field name="sale_order_line_id" ref="demo_sale_order_line_g40"/>
+    </record>
+    <record id="demo_rate_foundation_g40" model="rmc.project.rate">
+        <field name="project_id" ref="demo_project_dubai_tower_a"/>
+        <field name="phase_id" ref="demo_task_foundation"/>
+        <field name="product_id" ref="demo_product_g40"/>
+        <field name="rate_per_m3">290</field>
+        <field name="free_unloading_minutes">45</field>
+        <field name="standby_rate_per_hour">150</field>
+        <field name="date_from" eval="'%s-01-01' % datetime.today().year"/>
+        <field name="sale_order_id" ref="demo_sale_order_g40"/>
+        <field name="sale_order_line_id" ref="demo_sale_order_line_g40"/>
+    </record>
+
+    <!-- Call-off: 20 m3 against Foundation. Resolution runs on create() (still draft here);
+         confirm/create-loads/etc. run for real in the post_init_hook. -->
+    <record id="demo_calloff_foundation" model="rmc.calloff">
+        <field name="customer_id" ref="demo_partner_abc_contracting"/>
+        <field name="sale_order_id" ref="demo_sale_order_g40"/>
+        <field name="sale_order_line_id" ref="demo_sale_order_line_g40"/>
+        <field name="project_id" ref="demo_project_dubai_tower_a"/>
+        <field name="phase_id" ref="demo_task_foundation"/>
+        <field name="product_id" ref="demo_product_g40"/>
+        <field name="requested_qty">20</field>
+        <field name="requested_delivery_datetime" eval="datetime.now()"/>
+    </record>
+</odoo>

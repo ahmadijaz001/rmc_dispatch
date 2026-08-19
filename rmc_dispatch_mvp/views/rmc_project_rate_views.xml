@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_rmc_project_rate_list" model="ir.ui.view">
+        <field name="name">rmc.project.rate.list</field>
+        <field name="model">rmc.project.rate</field>
+        <field name="arch" type="xml">
+            <list string="Project Rate Cards">
+                <field name="project_id"/>
+                <field name="phase_id"/>
+                <field name="product_id"/>
+                <field name="rate_per_m3"/>
+                <field name="free_unloading_minutes"/>
+                <field name="standby_rate_per_hour"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <field name="active" column_invisible="True"/>
+                <field name="load_count"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_rmc_project_rate_form" model="ir.ui.view">
+        <field name="name">rmc.project.rate.form</field>
+        <field name="model">rmc.project.rate</field>
+        <field name="arch" type="xml">
+            <form string="Project Rate Card">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button type="action" name="%(action_rmc_load)d" class="oe_stat_button" icon="fa-truck"
+                                context="{'search_default_project_rate_id': id}" invisible="not load_count">
+                            <field name="load_count" widget="statinfo" string="Loads Priced"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <group>
+                        <group>
+                            <field name="project_id"/>
+                            <field name="phase_id"/>
+                            <field name="product_id"/>
+                            <field name="customer_id" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="rate_per_m3"/>
+                            <field name="free_unloading_minutes"/>
+                            <field name="standby_rate_per_hour"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                        </group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="sale_order_id"/>
+                            <field name="sale_order_line_id"/>
+                        </group>
+                    </group>
+                    <field name="notes" placeholder="Notes..."/>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_rmc_project_rate_search" model="ir.ui.view">
+        <field name="name">rmc.project.rate.search</field>
+        <field name="model">rmc.project.rate</field>
+        <field name="arch" type="xml">
+            <search string="Project Rate Cards">
+                <field name="project_id"/>
+                <field name="phase_id"/>
+                <field name="product_id"/>
+                <field name="customer_id"/>
+                <filter string="Active" name="active" domain="[('active', '=', True)]"/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter string="Project" name="group_project" context="{'group_by': 'project_id'}"/>
+                    <filter string="Grade" name="group_product" context="{'group_by': 'product_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_rmc_project_rate" model="ir.actions.act_window">
+        <field name="name">Project Rate Cards</field>
+        <field name="res_model">rmc.project.rate</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_active': 1}</field>
+    </record>
+</odoo>

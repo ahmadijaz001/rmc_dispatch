@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Implemented as a pivot/list on rmc.load itself (spec offered "QWeb or a list/pivot") -
+        no new SQL model needed since every measure required is already a stored field on
+        rmc.load. "Truck count" is shown by grouping rows on Truck rather than as a distinct
+        count measure (pivot views aggregate with sum/avg/count-of-records, not count-distinct);
+        see NOTES.md.
+    -->
+    <record id="view_rmc_daily_dispatch_report_pivot" model="ir.ui.view">
+        <field name="name">rmc.load.daily_dispatch.pivot</field>
+        <field name="model">rmc.load</field>
+        <field name="arch" type="xml">
+            <pivot string="Daily Dispatch Report">
+                <field name="scheduled_departure" interval="day" type="row"/>
+                <field name="plant_id" type="row"/>
+                <field name="planned_qty_m3" type="measure" string="Scheduled (m³)"/>
+                <field name="actual_batched_qty_m3" type="measure" string="Batched (m³)"/>
+                <field name="actual_delivered_qty_m3" type="measure" string="Delivered (m³)"/>
+                <field name="returned_qty_m3" type="measure" string="Returned (m³)"/>
+                <field name="cycle_time_minutes" type="measure" string="Avg Cycle Time (min)"/>
+                <field name="standby_minutes" type="measure" string="Avg Standby (min)"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_rmc_daily_dispatch_report_list" model="ir.ui.view">
+        <field name="name">rmc.load.daily_dispatch.list</field>
+        <field name="model">rmc.load</field>
+        <field name="arch" type="xml">
+            <list string="Daily Dispatch Report" create="false">
+                <field name="scheduled_departure"/>
+                <field name="plant_id"/>
+                <field name="fleet_vehicle_id"/>
+                <field name="planned_qty_m3" sum="Scheduled (m³)"/>
+                <field name="actual_batched_qty_m3" sum="Batched (m³)"/>
+                <field name="actual_delivered_qty_m3" sum="Delivered (m³)"/>
+                <field name="returned_qty_m3" sum="Returned (m³)"/>
+                <field name="cycle_time_minutes" avg="Avg Cycle Time (min)"/>
+                <field name="standby_minutes" avg="Avg Standby (min)"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_rmc_daily_dispatch_report" model="ir.actions.act_window">
+        <field name="name">Daily Dispatch Report</field>
+        <field name="res_model">rmc.load</field>
+        <field name="view_mode">pivot,list</field>
+        <field name="domain">[('state', '!=', 'cancelled')]</field>
+        <field name="context">{'search_default_group_date': 1, 'pivot_measures': ['planned_qty_m3', 'actual_batched_qty_m3', 'actual_delivered_qty_m3']}</field>
+        <field name="search_view_id" ref="view_rmc_load_search"/>
+    </record>
+</odoo>

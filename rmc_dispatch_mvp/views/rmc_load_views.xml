@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_rmc_load_kanban" model="ir.ui.view">
+        <field name="name">rmc.load.kanban.dispatch_board</field>
+        <field name="model">rmc.load</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_rmc_dispatch_board">
+                <field name="credit_warning"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="d-flex justify-content-between">
+                            <field name="name" class="fw-bold"/>
+                            <span class="badge text-bg-danger" t-if="record.credit_warning.raw_value">
+                                <field name="credit_warning"/>
+                            </span>
+                        </div>
+                        <div><field name="project_id"/> / <field name="phase_id"/></div>
+                        <div><field name="product_id"/></div>
+                        <div>
+                            <field name="planned_qty_m3"/> m³ planned
+                            <span invisible="not actual_delivered_qty_m3">
+                                - <field name="actual_delivered_qty_m3"/> m³ delivered
+                            </span>
+                        </div>
+                        <div><field name="fleet_vehicle_id"/> - <field name="driver_id"/></div>
+                        <div>
+                            <field name="scheduled_departure"/>
+                            <span invisible="not cycle_time_minutes">
+                                (<field name="cycle_time_minutes"/> min cycle)
+                            </span>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_rmc_load_list" model="ir.ui.view">
+        <field name="name">rmc.load.list</field>
+        <field name="model">rmc.load</field>
+        <field name="arch" type="xml">
+            <list string="Loads" decoration-danger="credit_warning">
+                <field name="name"/>
+                <field name="customer_id"/>
+                <field name="project_id"/>
+                <field name="phase_id"/>
+                <field name="product_id"/>
+                <field name="planned_qty_m3"/>
+                <field name="actual_delivered_qty_m3"/>
+                <field name="fleet_vehicle_id"/>
+                <field name="driver_id"/>
+                <field name="scheduled_departure"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_rmc_load_calendar" model="ir.ui.view">
+        <field name="name">rmc.load.calendar</field>
+        <field name="model">rmc.load</field>
+        <field name="arch" type="xml">
+            <calendar string="Loads" date_start="scheduled_departure" color="state" mode="week">
+                <field name="name"/>
+                <field name="fleet_vehicle_id"/>
+            </calendar>
+        </field>
+    </record>
+
+    <record id="view_rmc_load_pivot" model="ir.ui.view">
+        <field name="name">rmc.load.pivot</field>
+        <field name="model">rmc.load</field>
+        <field name="arch" type="xml">
+            <pivot string="Loads">
+                <field name="project_id" type="row"/>
+                <field name="planned_qty_m3" type="measure"/>
+                <field name="actual_delivered_qty_m3" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_rmc_load_graph" model="ir.ui.view">
+        <field name="name">rmc.load.graph</field>
+        <field name="model">rmc.load</field>
+        <field name="arch" type="xml">
+            <graph string="Loads">
+                <field name="scheduled_departure" interval="day"/>
+                <field name="actual_delivered_qty_m3" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_rmc_load_form" model="ir.ui.view">
+        <field name="name">rmc.load.form</field>
+        <field name="model">rmc.load</field>
+        <field name="arch" type="xml">
+            <form string="Load">
+                <header>
+                    <button string="Confirm" type="object" name="action_confirm" class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button string="Create MO" type="object" name="action_create_mo" class="btn-primary"
+                            invisible="state != 'scheduled' or manufacturing_order_id"/>
+                    <button string="Start Batching" type="object" name="action_start_batching" class="btn-primary"
+                            invisible="state != 'scheduled' or not manufacturing_order_id"/>
+                    <button string="Mark Batched" type="object" name="action_mark_batched" class="btn-primary"
+                            invisible="state != 'batching'"/>
+                    <button string="Dispatch" type="object" name="action_dispatch" class="btn-primary"
+                            invisible="state != 'batched'"/>
+                    <button string="Mark Arrived" type="object" name="action_mark_arrived"
+                            invisible="state != 'in_transit' or site_arrival"/>
+                    <button string="Confirm Delivery" type="object" name="action_confirm_delivery" class="btn-primary"
+                            invisible="state != 'in_transit'"/>
+                    <button string="Record Return" type="object" name="action_record_return"
+                            invisible="state != 'delivered' or not returned_qty_m3"/>
+                    <button string="Create Invoice" type="object" name="action_create_invoice" class="btn-primary"
+                            invisible="state != 'delivered'"
+                            groups="rmc_dispatch_mvp.group_rmc_finance,rmc_dispatch_mvp.group_rmc_manager"/>
+                    <button string="Cancel" type="object" name="action_cancel"
+                            invisible="state in ('invoiced', 'cancelled')"
+                            groups="rmc_dispatch_mvp.group_rmc_manager"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,scheduled,batching,batched,in_transit,delivered,invoiced"/>
+                </header>
+                <sheet>
+                    <div class="alert alert-danger" role="alert" invisible="not credit_warning">
+                        <field name="credit_warning"/>
+                    </div>
+                    <div class="oe_button_box" name="button_box">
+                        <button type="object" name="action_open_mo" class="oe_stat_button" icon="fa-industry"
+                                invisible="not manufacturing_order_id">
+                            <div class="o_stat_info"><span class="o_stat_text">Manufacturing Order</span></div>
+                        </button>
+                        <button type="object" name="action_open_qc" class="oe_stat_button" icon="fa-flask"
+                                invisible="not qc_sample_id">
+                            <div class="o_stat_info"><span class="o_stat_text">QC Sample</span></div>
+                        </button>
+                        <button type="object" name="action_open_invoice" class="oe_stat_button" icon="fa-file-text-o"
+                                invisible="not invoice_id">
+                            <div class="o_stat_info"><span class="o_stat_text">Invoice</span></div>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="calloff_id"/>
+                            <field name="customer_id" readonly="1"/>
+                            <field name="project_id" readonly="1"/>
+                            <field name="phase_id" readonly="1"/>
+                            <field name="product_id" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="agreed_rate_per_m3" readonly="1"
+                                   groups="rmc_dispatch_mvp.group_rmc_finance,rmc_dispatch_mvp.group_rmc_dispatcher,rmc_dispatch_mvp.group_rmc_manager"/>
+                            <field name="planned_qty_m3" readonly="state != 'draft'"/>
+                            <field name="fleet_vehicle_id" readonly="state not in ('draft', 'scheduled')"/>
+                            <field name="driver_id" readonly="state not in ('draft', 'scheduled')"/>
+                            <field name="plant_id" readonly="state not in ('draft', 'scheduled')"/>
+                            <field name="scheduled_departure"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Batching">
+                            <group>
+                                <group>
+                                    <field name="actual_batch_start" readonly="1"/>
+                                    <field name="actual_batch_end" readonly="1"/>
+                                    <field name="actual_batched_qty_m3" readonly="state not in ('batching',)"/>
+                                </group>
+                                <group>
+                                    <field name="manufacturing_order_id" readonly="1"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Delivery">
+                            <group>
+                                <group>
+                                    <field name="actual_departure" readonly="1"/>
+                                    <field name="site_arrival" readonly="1"/>
+                                    <field name="unloading_start"/>
+                                    <field name="unloading_end"/>
+                                    <field name="return_to_plant_datetime"/>
+                                </group>
+                                <group>
+                                    <field name="actual_delivered_qty_m3" readonly="state not in ('in_transit',)"/>
+                                    <field name="signed_by" readonly="state not in ('in_transit',)"/>
+                                    <field name="delivery_signature" widget="signature" readonly="state not in ('in_transit',)"/>
+                                    <field name="water_added_on_site"/>
+                                    <field name="water_added_litres" invisible="not water_added_on_site"/>
+                                </group>
+                            </group>
+                            <field name="delivery_notes" placeholder="Delivery notes..."/>
+                        </page>
+                        <page string="Return &amp; Variance">
+                            <group>
+                                <group>
+                                    <field name="returned_qty_m3"/>
+                                    <field name="returned_reason_id" invisible="not returned_qty_m3"/>
+                                </group>
+                                <group>
+                                    <field name="variance_qty_m3" readonly="1"/>
+                                    <field name="variance_reason" invisible="not variance_qty_m3"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Costing" groups="rmc_dispatch_mvp.group_rmc_finance,rmc_dispatch_mvp.group_rmc_manager">
+                            <group>
+                                <group>
+                                    <field name="free_unloading_minutes" readonly="1"/>
+                                    <field name="unloading_minutes" readonly="1"/>
+                                    <field name="standby_minutes" readonly="1"/>
+                                    <field name="standby_rate_per_hour" readonly="1"/>
+                                    <field name="standby_charge" readonly="1"/>
+                                    <field name="cycle_time_minutes" readonly="1"/>
+                                </group>
+                                <group>
+                                    <field name="material_cost" readonly="1"/>
+                                    <field name="sales_value" readonly="1"/>
+                                    <field name="gross_margin" readonly="1"/>
+                                    <field name="margin_pct" readonly="1"/>
+                                </group>
+                            </group>
+                            <group string="Cement Variance">
+                                <field name="design_cement_kg_per_m3" readonly="1"/>
+                                <field name="actual_cement_kg_per_m3" readonly="1"/>
+                                <field name="cement_variance_kg_per_m3" readonly="1"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_rmc_load_search" model="ir.ui.view">
+        <field name="name">rmc.load.search</field>
+        <field name="model">rmc.load</field>
+        <field name="arch" type="xml">
+            <search string="Loads">
+                <field name="name"/>
+                <field name="customer_id"/>
+                <field name="project_id"/>
+                <field name="product_id"/>
+                <field name="fleet_vehicle_id"/>
+                <field name="driver_id"/>
+                <field name="calloff_id"/>
+                <field name="project_rate_id"/>
+                <filter string="Today" name="today"
+                        domain="[('scheduled_departure', '&gt;=', context_today().strftime('%Y-%m-%d 00:00:00')),
+                                 ('scheduled_departure', '&lt;=', context_today().strftime('%Y-%m-%d 23:59:59'))]"/>
+                <filter string="This Week" name="this_week"
+                        domain="[('scheduled_departure', '&gt;=', (context_today() - datetime.timedelta(days=context_today().weekday())).strftime('%Y-%m-%d 00:00:00'))]"/>
+                <filter string="Pending QC" name="pending_qc" domain="[('qc_sample_id.state', '=', 'pending')]"/>
+                <filter string="Variance Exceptions" name="variance_exceptions" domain="[('variance_reason', '!=', False)]"/>
+                <filter string="Credit Warning" name="credit_warning" domain="[('credit_warning', '!=', False)]"/>
+                <group>
+                    <filter string="State" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Project" name="group_project" context="{'group_by': 'project_id'}"/>
+                    <filter string="Grade" name="group_product" context="{'group_by': 'product_id'}"/>
+                    <filter string="Truck" name="group_vehicle" context="{'group_by': 'fleet_vehicle_id'}"/>
+                    <filter string="Driver" name="group_driver" context="{'group_by': 'driver_id'}"/>
+                    <filter string="Departure Date" name="group_date" context="{'group_by': 'scheduled_departure:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_rmc_dispatch_board" model="ir.actions.act_window">
+        <field name="name">Dispatch Board</field>
+        <field name="res_model">rmc.load</field>
+        <field name="view_mode">kanban,list,form,calendar,pivot,graph</field>
+        <field name="search_view_id" ref="view_rmc_load_search"/>
+    </record>
+
+    <record id="action_rmc_load" model="ir.actions.act_window">
+        <field name="name">Loads</field>
+        <field name="res_model">rmc.load</field>
+        <field name="view_mode">list,form,kanban,calendar,pivot,graph</field>
+        <field name="search_view_id" ref="view_rmc_load_search"/>
+    </record>
+</odoo>

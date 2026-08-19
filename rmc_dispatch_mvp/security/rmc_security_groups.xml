@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="module_category_rmc_dispatch" model="ir.module.category">
+        <field name="name">RMC Dispatch</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <record id="privilege_rmc_dispatch" model="res.groups.privilege">
+        <field name="name">RMC Dispatch</field>
+        <field name="category_id" ref="module_category_rmc_dispatch"/>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="group_rmc_driver" model="res.groups">
+        <field name="name">RMC Driver</field>
+        <field name="privilege_id" ref="privilege_rmc_dispatch"/>
+        <field name="sequence">10</field>
+        <field name="comment">Reads only their own loads (record rule); writes delivery
+            timestamps, signature and delivered/returned quantity. Never sees commercial rates.</field>
+    </record>
+
+    <record id="group_rmc_batch_operator" model="res.groups">
+        <field name="name">RMC Batch Operator</field>
+        <field name="privilege_id" ref="privilege_rmc_dispatch"/>
+        <field name="sequence">20</field>
+        <field name="comment">Reads all loads; writes batching fields and batching state.
+            No invoicing, no rate visibility.</field>
+    </record>
+
+    <record id="group_rmc_qc_technician" model="res.groups">
+        <field name="name">RMC QC Technician</field>
+        <field name="privilege_id" ref="privilege_rmc_dispatch"/>
+        <field name="sequence">30</field>
+        <field name="comment">Full access to QC samples; read-only on loads.</field>
+    </record>
+
+    <record id="group_rmc_dispatcher" model="res.groups">
+        <field name="name">RMC Dispatcher</field>
+        <field name="privilege_id" ref="privilege_rmc_dispatch"/>
+        <field name="sequence">40</field>
+        <field name="comment">Full access to call-offs and loads. Cannot override credit,
+            cannot invoice, cannot cancel.</field>
+    </record>
+
+    <record id="group_rmc_finance" model="res.groups">
+        <field name="name">RMC Finance</field>
+        <field name="privilege_id" ref="privilege_rmc_dispatch"/>
+        <field name="sequence">50</field>
+        <field name="comment">Reads loads; creates/reads invoices. No batching or delivery edits.</field>
+    </record>
+
+    <record id="group_rmc_manager" model="res.groups">
+        <field name="name">RMC Manager</field>
+        <field name="privilege_id" ref="privilege_rmc_dispatch"/>
+        <field name="sequence">60</field>
+        <field name="implied_ids" eval="[(4, ref('group_rmc_driver')),
+                                          (4, ref('group_rmc_batch_operator')),
+                                          (4, ref('group_rmc_qc_technician')),
+                                          (4, ref('group_rmc_dispatcher')),
+                                          (4, ref('group_rmc_finance'))]"/>
+        <field name="comment">Everything the other five roles can do, plus credit override,
+            quantity override, cancellation, rate card management and configuration.</field>
+    </record>
+</odoo>

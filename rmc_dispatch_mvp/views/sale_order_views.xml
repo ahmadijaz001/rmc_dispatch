@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Deliberately minimal: the order_line sub-view is an embedded form (widget="sol_o2m")
+        several levels deep. Per the spec's "be conservative with xpath" guidance, we anchor
+        on a single, specific, unlikely-to-move field (analytic_distribution) rather than
+        restructuring the group around it. These fields are optional fallbacks only (see
+        README free-unloading-minutes precedence) - the call-off workflow itself never
+        requires editing them from the Sales app.
+    -->
+    <record id="view_order_form_rmc" model="ir.ui.view">
+        <field name="name">sale.order.form.rmc</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='analytic_distribution']" position="after">
+                <field name="rmc_project_id" invisible="not product_id.is_rmc_concrete"/>
+                <field name="rmc_phase_id" invisible="not product_id.is_rmc_concrete"/>
+                <field name="rmc_free_unloading_minutes" invisible="not product_id.is_rmc_concrete"/>
+                <field name="rmc_standby_rate_per_hour" invisible="not product_id.is_rmc_concrete"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

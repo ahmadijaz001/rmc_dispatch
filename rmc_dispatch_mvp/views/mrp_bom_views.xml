@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_mrp_bom_form_rmc" model="ir.ui.view">
+        <field name="name">mrp.bom.form.rmc</field>
+        <field name="model">mrp.bom</field>
+        <field name="inherit_id" ref="mrp.mrp_bom_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='miscellaneous']" position="after">
+                <page name="rmc_mix_design" string="RMC Mix Design" invisible="not product_tmpl_id.is_rmc_concrete">
+                    <group>
+                        <group>
+                            <field name="approval_reference"/>
+                            <field name="target_slump_mm"/>
+                            <field name="target_strength"/>
+                        </group>
+                        <group>
+                            <field name="effective_date_from"/>
+                            <field name="effective_date_to"/>
+                            <field name="design_cement_kg_per_m3" readonly="1"/>
+                            <field name="design_water_litre_per_m3" readonly="1"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_rmc_mix_design" model="ir.actions.act_window">
+        <field name="name">Mix Designs</field>
+        <field name="res_model">mrp.bom</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('product_tmpl_id.is_rmc_concrete', '=', True)]</field>
+        <field name="context">{'default_consumption': 'flexible'}</field>
+    </record>
+</odoo>

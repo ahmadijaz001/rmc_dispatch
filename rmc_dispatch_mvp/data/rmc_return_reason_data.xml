@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!--
+        None of the seed reasons are chargeable by default: whether a return is billable is a
+        commercial policy decision for the RMC Manager to configure (with their own charge
+        product) per §4.3, not something this MVP should assume. See NOTES.md.
+    -->
+    <record id="return_reason_site_excess" model="rmc.return.reason">
+        <field name="name">Site excess</field>
+        <field name="code">SITE_EXCESS</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="return_reason_site_rejection" model="rmc.return.reason">
+        <field name="name">Site rejection</field>
+        <field name="code">SITE_REJECTION</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="return_reason_delayed_unloading" model="rmc.return.reason">
+        <field name="name">Delayed unloading</field>
+        <field name="code">DELAYED_UNLOADING</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="return_reason_quality_issue" model="rmc.return.reason">
+        <field name="name">Quality issue</field>
+        <field name="code">QUALITY_ISSUE</field>
+        <field name="sequence">40</field>
+    </record>
+    <record id="return_reason_truck_breakdown" model="rmc.return.reason">
+        <field name="name">Truck breakdown</field>
+        <field name="code">TRUCK_BREAKDOWN</field>
+        <field name="sequence">50</field>
+    </record>
+</odoo>

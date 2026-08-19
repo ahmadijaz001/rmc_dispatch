@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_rmc_root" name="RMC Dispatch" sequence="45"
+              web_icon="rmc_dispatch_mvp,static/description/icon.png"/>
+
+    <menuitem id="menu_rmc_dispatch_board" name="Dispatch Board" parent="menu_rmc_root"
+              action="action_rmc_dispatch_board" sequence="10"/>
+    <menuitem id="menu_rmc_calloff" name="Call-offs" parent="menu_rmc_root"
+              action="action_rmc_calloff" sequence="20"/>
+    <menuitem id="menu_rmc_load" name="Loads" parent="menu_rmc_root"
+              action="action_rmc_load" sequence="30"/>
+    <menuitem id="menu_rmc_qc_sample" name="Quality Samples" parent="menu_rmc_root"
+              action="action_rmc_qc_sample" sequence="40"
+              groups="rmc_dispatch_mvp.group_rmc_qc_technician,rmc_dispatch_mvp.group_rmc_manager"/>
+
+    <menuitem id="menu_rmc_reporting" name="Reporting" parent="menu_rmc_root" sequence="50"/>
+    <menuitem id="menu_rmc_daily_dispatch_report" name="Daily Dispatch Report" parent="menu_rmc_reporting"
+              action="action_rmc_daily_dispatch_report" sequence="10"/>
+    <menuitem id="menu_rmc_load_margin_report" name="Load Margin Analysis" parent="menu_rmc_reporting"
+              action="action_rmc_load_margin_report" sequence="20"
+              groups="rmc_dispatch_mvp.group_rmc_finance,rmc_dispatch_mvp.group_rmc_manager"/>
+    <menuitem id="menu_rmc_cement_variance_report" name="Cement Variance" parent="menu_rmc_reporting"
+              action="action_rmc_cement_variance_report" sequence="30"/>
+
+    <menuitem id="menu_rmc_configuration" name="Configuration" parent="menu_rmc_root" sequence="60"
+              groups="rmc_dispatch_mvp.group_rmc_dispatcher,rmc_dispatch_mvp.group_rmc_finance,rmc_dispatch_mvp.group_rmc_manager"/>
+    <menuitem id="menu_rmc_project_rate" name="Project Rate Cards" parent="menu_rmc_configuration"
+              action="action_rmc_project_rate" sequence="10"/>
+    <menuitem id="menu_rmc_concrete_grade" name="Concrete Grades" parent="menu_rmc_configuration"
+              action="action_rmc_concrete_grade" sequence="20"/>
+    <menuitem id="menu_rmc_mix_design" name="Mix Designs" parent="menu_rmc_configuration"
+              action="action_rmc_mix_design" sequence="30"/>
+    <menuitem id="menu_rmc_return_reason" name="Return Reasons" parent="menu_rmc_configuration"
+              action="action_rmc_return_reason" sequence="40"/>
+    <menuitem id="menu_rmc_fleet_vehicle" name="Vehicles" parent="menu_rmc_configuration"
+              action="action_rmc_fleet_vehicle" sequence="50"/>
+    <menuitem id="menu_rmc_settings" name="Settings" parent="menu_rmc_configuration"
+              action="base_setup.action_general_configuration" sequence="60"
+              groups="rmc_dispatch_mvp.group_rmc_manager"/>
+</odoo>

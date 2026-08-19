@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Odoo ships a m³ UoM (uom.product_uom_cubic_meter) but leaves it archived by default.
+        Deviation from the spec's demo-data instruction to "create" a m³ UoM: creating a
+        second one would duplicate an existing core record and confuse UoM conversions.
+        Activating the existing one is the correct fix - see NOTES.md.
+    -->
+    <record id="uom.product_uom_cubic_meter" model="uom.uom">
+        <field name="active" eval="True"/>
+    </record>
+</odoo>

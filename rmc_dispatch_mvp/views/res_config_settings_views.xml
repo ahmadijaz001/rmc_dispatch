@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_rmc" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.rmc</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="RMC Dispatch" string="RMC Dispatch" name="rmc_dispatch_mvp"
+                     groups="rmc_dispatch_mvp.group_rmc_manager">
+                    <block title="Dispatch Defaults" name="rmc_dispatch_defaults_setting_container">
+                        <setting string="Free Unloading" help="Fallback used when no rate card, sale order line or product specifies one">
+                            <field name="rmc_default_free_unloading_minutes"/> minutes
+                        </setting>
+                        <setting string="Standby Rate" help="Fallback standby rate per hour">
+                            <field name="rmc_default_standby_rate_per_hour"/>
+                        </setting>
+                        <setting string="Standby Service Product" help="Product used for the standby-time invoice line">
+                            <field name="rmc_standby_service_product_id"/>
+                        </setting>
+                        <setting string="Default Load Size" help="Used to split a call-off into loads when no vehicle capacity is set">
+                            <field name="rmc_default_load_size_m3"/> m³
+                        </setting>
+                        <setting string="Variance Tolerance" help="Batching variance below this does not require a reason">
+                            <field name="rmc_variance_tolerance_m3"/> m³
+                        </setting>
+                        <setting string="Credit Check Blocks Dispatch" help="Block load creation when the customer is over their credit limit">
+                            <field name="rmc_credit_check_blocks_dispatch"/>
+                        </setting>
+                        <setting string="Allow Sale Order Rate Fallback"
+                                 help="Disabled by default - see README 'why the sale-order rate fallback is disabled by default'">
+                            <field name="rmc_allow_so_rate_fallback"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

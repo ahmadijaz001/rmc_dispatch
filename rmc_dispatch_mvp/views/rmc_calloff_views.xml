@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_rmc_calloff_list" model="ir.ui.view">
+        <field name="name">rmc.calloff.list</field>
+        <field name="model">rmc.calloff</field>
+        <field name="arch" type="xml">
+            <list string="Call-offs" decoration-danger="credit_status == 'blocked'">
+                <field name="name"/>
+                <field name="customer_id"/>
+                <field name="project_id"/>
+                <field name="phase_id"/>
+                <field name="product_id"/>
+                <field name="requested_qty"/>
+                <field name="requested_delivery_datetime"/>
+                <field name="agreed_rate_per_m3" groups="rmc_dispatch_mvp.group_rmc_finance,rmc_dispatch_mvp.group_rmc_dispatcher,rmc_dispatch_mvp.group_rmc_manager"/>
+                <field name="credit_status"/>
+                <field name="state" widget="badge" decoration-success="state == 'dispatched'" decoration-info="state == 'confirmed'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_rmc_calloff_form" model="ir.ui.view">
+        <field name="name">rmc.calloff.form</field>
+        <field name="model">rmc.calloff</field>
+        <field name="arch" type="xml">
+            <form string="Call-off">
+                <header>
+                    <button string="Check Credit" type="object" name="action_check_credit"
+                            invisible="state != 'draft'"/>
+                    <button string="Confirm" type="object" name="action_confirm" class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button string="Create Loads" type="object" name="action_create_loads" class="btn-primary"
+                            invisible="state not in ('confirmed', 'partially_dispatched')"/>
+                    <button string="Override Credit" type="object" name="action_override_credit"
+                            invisible="credit_status != 'blocked'"
+                            groups="rmc_dispatch_mvp.group_rmc_manager"/>
+                    <button string="Cancel" type="object" name="action_cancel"
+                            invisible="state in ('dispatched', 'cancelled')"
+                            groups="rmc_dispatch_mvp.group_rmc_manager"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,dispatched"/>
+                </header>
+                <sheet>
+                    <field name="rate_source" invisible="1"/>
+                    <div class="alert alert-warning" role="alert" invisible="rate_source != 'sale_order_line'">
+                        Pricing fell back to the sale order line rate - no matching project rate card was found.
+                    </div>
+                    <div class="alert alert-danger" role="alert" invisible="credit_status != 'blocked'">
+                        Customer is over their credit limit.
+                    </div>
+                    <div class="oe_button_box" name="button_box">
+                        <button type="action" name="%(action_rmc_load)d" class="oe_stat_button" icon="fa-truck"
+                                context="{'search_default_calloff_id': id}" invisible="not load_count">
+                            <field name="load_count" widget="statinfo" string="Loads"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="customer_id"/>
+                            <field name="sale_order_id"/>
+                            <field name="sale_order_line_id"/>
+                            <field name="project_id"/>
+                            <field name="phase_id"/>
+                            <field name="product_id"/>
+                        </group>
+                        <group>
+                            <field name="requested_qty"/>
+                            <field name="uom_id" invisible="1"/>
+                            <field name="requested_delivery_datetime"/>
+                            <field name="ordered_qty"/>
+                            <field name="previously_called_qty"/>
+                            <field name="remaining_contract_qty"/>
+                            <field name="qty_override_reason" invisible="requested_qty &lt;= remaining_contract_qty"/>
+                        </group>
+                    </group>
+                    <group string="Pricing (frozen at confirmation)" groups="rmc_dispatch_mvp.group_rmc_finance,rmc_dispatch_mvp.group_rmc_dispatcher,rmc_dispatch_mvp.group_rmc_manager">
+                        <group>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="project_rate_id" readonly="state != 'draft'"/>
+                            <field name="rate_source" readonly="1"/>
+                            <field name="agreed_rate_per_m3" readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="free_unloading_minutes" readonly="state != 'draft'"/>
+                            <field name="standby_rate_per_hour" readonly="state != 'draft'"/>
+                        </group>
+                    </group>
+                    <group string="Credit">
+                        <group>
+                            <field name="credit_status" readonly="1"/>
+                            <field name="credit_override_user_id" readonly="1" invisible="credit_status != 'overridden'"/>
+                            <field name="credit_override_reason" readonly="1" invisible="credit_status != 'overridden'"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Loads">
+                            <field name="load_ids" readonly="1">
+                                <list decoration-danger="credit_warning">
+                                    <field name="name"/>
+                                    <field name="planned_qty_m3"/>
+                                    <field name="actual_delivered_qty_m3"/>
+                                    <field name="fleet_vehicle_id"/>
+                                    <field name="scheduled_departure"/>
+                                    <field name="state" widget="badge"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Notes">
+                            <field name="notes"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_rmc_calloff_kanban" model="ir.ui.view">
+        <field name="name">rmc.calloff.kanban</field>
+        <field name="model">rmc.calloff</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state">
+                <templates>
+                    <t t-name="card">
+                        <field name="name" class="fw-bold"/>
+                        <div><field name="customer_id"/></div>
+                        <div><field name="project_id"/> / <field name="phase_id"/></div>
+                        <div><field name="requested_qty"/> m³ - <field name="requested_delivery_datetime"/></div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_rmc_calloff_search" model="ir.ui.view">
+        <field name="name">rmc.calloff.search</field>
+        <field name="model">rmc.calloff</field>
+        <field name="arch" type="xml">
+            <search string="Call-offs">
+                <field name="name"/>
+                <field name="customer_id"/>
+                <field name="project_id"/>
+                <field name="phase_id"/>
+                <field name="product_id"/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Confirmed" name="confirmed" domain="[('state', '=', 'confirmed')]"/>
+                <filter string="Credit Blocked" name="credit_blocked" domain="[('credit_status', '=', 'blocked')]"/>
+                <group>
+                    <filter string="Customer" name="group_customer" context="{'group_by': 'customer_id'}"/>
+                    <filter string="Project" name="group_project" context="{'group_by': 'project_id'}"/>
+                    <filter string="State" name="group_state" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_rmc_calloff" model="ir.actions.act_window">
+        <field name="name">Call-offs</field>
+        <field name="res_model">rmc.calloff</field>
+        <field name="view_mode">list,form,kanban</field>
+    </record>
+</odoo>

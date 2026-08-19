@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_rmc_qc_sample_list" model="ir.ui.view">
+        <field name="name">rmc.qc.sample.list</field>
+        <field name="model">rmc.qc.sample</field>
+        <field name="arch" type="xml">
+            <list string="QC Samples">
+                <field name="name"/>
+                <field name="load_id"/>
+                <field name="product_id"/>
+                <field name="sample_date"/>
+                <field name="test_28_day_date"/>
+                <field name="average_strength"/>
+                <field name="target_strength"/>
+                <field name="state" widget="badge" decoration-success="state == 'passed'" decoration-danger="state == 'failed'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_rmc_qc_sample_form" model="ir.ui.view">
+        <field name="name">rmc.qc.sample.form</field>
+        <field name="model">rmc.qc.sample</field>
+        <field name="arch" type="xml">
+            <form string="QC Sample">
+                <header>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button type="object" name="action_open_load" class="oe_stat_button" icon="fa-truck">
+                            <div class="o_stat_info"><span class="o_stat_text">Load</span></div>
+                        </button>
+                        <button type="object" name="action_open_mo" class="oe_stat_button" icon="fa-industry"
+                                invisible="not manufacturing_order_id">
+                            <div class="o_stat_info"><span class="o_stat_text">Manufacturing Order</span></div>
+                        </button>
+                        <button type="object" name="action_open_bom" class="oe_stat_button" icon="fa-list-alt"
+                                invisible="not bom_id">
+                            <div class="o_stat_info"><span class="o_stat_text">Bill of Material</span></div>
+                        </button>
+                        <button type="object" name="action_open_raw_moves" class="oe_stat_button" icon="fa-cubes"
+                                invisible="not manufacturing_order_id">
+                            <div class="o_stat_info"><span class="o_stat_text">Raw Moves</span></div>
+                        </button>
+                    </div>
+                    <div class="oe_title"><h1><field name="name" readonly="1"/></h1></div>
+                    <group>
+                        <group>
+                            <field name="load_id"/>
+                            <field name="product_id" readonly="1"/>
+                            <field name="project_id" readonly="1"/>
+                            <field name="customer_id" readonly="1"/>
+                            <field name="sample_date"/>
+                        </group>
+                        <group>
+                            <field name="target_strength"/>
+                            <field name="approval_reference"/>
+                            <field name="slump_mm"/>
+                            <field name="concrete_temperature_c"/>
+                            <field name="ambient_temperature_c"/>
+                        </group>
+                    </group>
+                    <group string="Cube Results">
+                        <group>
+                            <field name="cube_1_result"/>
+                            <field name="cube_2_result"/>
+                            <field name="cube_3_result"/>
+                        </group>
+                        <group>
+                            <field name="average_strength" readonly="1"/>
+                            <field name="strength_ratio" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Strength Test Schedule">
+                        <group>
+                            <field name="test_7_day_date" readonly="1"/>
+                            <field name="test_7_day_result"/>
+                        </group>
+                        <group>
+                            <field name="test_28_day_date" readonly="1"/>
+                            <field name="test_28_day_result"/>
+                        </group>
+                    </group>
+                    <field name="notes" placeholder="Notes..."/>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_rmc_qc_sample_search" model="ir.ui.view">
+        <field name="name">rmc.qc.sample.search</field>
+        <field name="model">rmc.qc.sample</field>
+        <field name="arch" type="xml">
+            <search string="QC Samples">
+                <field name="name"/>
+                <field name="load_id"/>
+                <field name="product_id"/>
+                <filter string="Pending" name="pending" domain="[('state', '=', 'pending')]"/>
+                <filter string="Pending 28-Day Test" name="pending_28_day"
+                        domain="[('state', '=', 'pending'), ('test_28_day_result', '=', 0)]"/>
+                <filter string="Failed" name="failed" domain="[('state', '=', 'failed')]"/>
+                <group>
+                    <filter string="Product" name="group_product" context="{'group_by': 'product_id'}"/>
+                    <filter string="State" name="group_state" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_rmc_qc_sample" model="ir.actions.act_window">
+        <field name="name">Quality Samples</field>
+        <field name="res_model">rmc.qc.sample</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

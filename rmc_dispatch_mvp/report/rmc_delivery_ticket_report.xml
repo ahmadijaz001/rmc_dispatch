@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="paperformat_rmc_delivery_ticket" model="report.paperformat">
+        <field name="name">RMC Delivery Ticket</field>
+        <field name="default" eval="False"/>
+        <field name="format">A4</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">20</field>
+        <field name="margin_bottom">16</field>
+        <field name="margin_left">7</field>
+        <field name="margin_right">7</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">18</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <template id="report_delivery_ticket_document">
+        <t t-call="web.external_layout">
+            <div class="page">
+                <h2>
+                    Delivery Ticket <span t-field="doc.name"/>
+                </h2>
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <strong>Customer:</strong> <span t-field="doc.customer_id.name"/><br/>
+                        <strong>Project / Site:</strong> <span t-field="doc.project_id.name"/><br/>
+                        <strong>Phase:</strong> <span t-field="doc.phase_id.name"/><br/>
+                        <strong>Concrete Grade:</strong> <span t-field="doc.product_id.display_name"/><br/>
+                        <strong>Mix Approval (DCL):</strong> <span t-field="doc.qc_sample_id.approval_reference"/>
+                    </div>
+                    <div class="col-6">
+                        <strong>Date:</strong>
+                        <span t-field="doc.scheduled_departure" t-options='{"widget": "datetime"}'/><br/>
+                        <strong>Truck:</strong> <span t-field="doc.fleet_vehicle_id.license_plate"/><br/>
+                        <strong>Driver:</strong> <span t-field="doc.driver_id.name"/><br/>
+                        <strong>QC Sample:</strong> <span t-field="doc.qc_sample_id.name"/>
+                    </div>
+                </div>
+
+                <table class="table table-sm table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Planned (m³)</th>
+                            <th>Batched (m³)</th>
+                            <th>Delivered (m³)</th>
+                            <th>Returned (m³)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span t-field="doc.planned_qty_m3"/></td>
+                            <td><span t-field="doc.actual_batched_qty_m3"/></td>
+                            <td><span t-field="doc.actual_delivered_qty_m3"/></td>
+                            <td><span t-field="doc.returned_qty_m3"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <table class="table table-sm table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Batch Start</th>
+                            <th>Batch End</th>
+                            <th>Departure</th>
+                            <th>Site Arrival</th>
+                            <th>Unloading Start</th>
+                            <th>Unloading End</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span t-field="doc.actual_batch_start" t-options='{"widget": "datetime"}'/></td>
+                            <td><span t-field="doc.actual_batch_end" t-options='{"widget": "datetime"}'/></td>
+                            <td><span t-field="doc.actual_departure" t-options='{"widget": "datetime"}'/></td>
+                            <td><span t-field="doc.site_arrival" t-options='{"widget": "datetime"}'/></td>
+                            <td><span t-field="doc.unloading_start" t-options='{"widget": "datetime"}'/></td>
+                            <td><span t-field="doc.unloading_end" t-options='{"widget": "datetime"}'/></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p>
+                    <strong>Standby Time:</strong> <span t-field="doc.standby_minutes"/> minutes
+                    (free allowance: <span t-field="doc.free_unloading_minutes"/> minutes)
+                </p>
+
+                <p>
+                    <strong>Water Added On Site:</strong>
+                    <span t-if="doc.water_added_on_site">
+                        Yes - <span t-field="doc.water_added_litres"/> litres
+                    </span>
+                    <span t-else="">No</span>
+                </p>
+
+                <div class="row mt-5">
+                    <div class="col-6">
+                        <div t-if="doc.delivery_signature">
+                            <img t-att-src="image_data_uri(doc.delivery_signature)" style="max-height:80px;"/>
+                        </div>
+                        <div>Signed by: <span t-field="doc.signed_by"/></div>
+                    </div>
+                </div>
+
+                <p class="mt-4 text-muted" style="font-size: 10px;">
+                    This delivery ticket is issued subject to the seller's standard terms and
+                    conditions of sale. Quantities and times recorded above are as declared by
+                    the delivering driver and are subject to confirmation.
+                </p>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_delivery_ticket">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="rmc_dispatch_mvp.report_delivery_ticket_document"/>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_rmc_delivery_ticket" model="ir.actions.report">
+        <field name="name">Delivery Ticket</field>
+        <field name="model">rmc.load</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">rmc_dispatch_mvp.report_delivery_ticket</field>
+        <field name="report_file">rmc_dispatch_mvp.report_delivery_ticket</field>
+        <field name="paperformat_id" ref="paperformat_rmc_delivery_ticket"/>
+        <field name="binding_model_id" ref="model_rmc_load"/>
+        <field name="binding_type">report</field>
+        <field name="print_report_name">'Delivery Ticket - %s' % (object.name)</field>
+    </record>
+</odoo>

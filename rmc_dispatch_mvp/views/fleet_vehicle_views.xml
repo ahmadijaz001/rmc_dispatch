@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_fleet_vehicle_form_rmc" model="ir.ui.view">
+        <field name="name">fleet.vehicle.form.rmc</field>
+        <field name="model">fleet.vehicle</field>
+        <field name="inherit_id" ref="fleet.fleet_vehicle_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='note']" position="after">
+                <page name="rmc_dispatch" string="RMC Dispatch">
+                    <group>
+                        <group>
+                            <field name="capacity_m3"/>
+                            <field name="ready_for_dispatch"/>
+                            <field name="permit_expiry_date"/>
+                            <field name="insurance_expiry_date"/>
+                        </group>
+                        <group>
+                            <field name="current_load_id" readonly="1"/>
+                            <field name="next_available_datetime"/>
+                            <field name="load_count" readonly="1"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_fleet_vehicle_list_rmc" model="ir.ui.view">
+        <field name="name">fleet.vehicle.list.rmc</field>
+        <field name="model">fleet.vehicle</field>
+        <field name="inherit_id" ref="fleet.fleet_vehicle_view_tree"/>
+        <field name="arch" type="xml">
+            <field name="model_id" position="after">
+                <field name="capacity_m3" optional="show"/>
+                <field name="ready_for_dispatch" optional="show"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="action_rmc_fleet_vehicle" model="ir.actions.act_window">
+        <field name="name">Vehicles</field>
+        <field name="res_model">fleet.vehicle</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

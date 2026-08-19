@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_rmc_cement_variance_report_pivot" model="ir.ui.view">
+        <field name="name">rmc.cement.variance.report.pivot</field>
+        <field name="model">rmc.cement.variance.report</field>
+        <field name="arch" type="xml">
+            <pivot string="Cement Variance">
+                <field name="project_id" type="row"/>
+                <field name="product_id" type="row"/>
+                <field name="design_cement_kg_per_m3" type="measure"/>
+                <field name="actual_cement_kg_per_m3" type="measure"/>
+                <field name="variance_kg_per_m3" type="measure"/>
+                <field name="variance_pct" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_rmc_cement_variance_report_graph" model="ir.ui.view">
+        <field name="name">rmc.cement.variance.report.graph</field>
+        <field name="model">rmc.cement.variance.report</field>
+        <field name="arch" type="xml">
+            <graph string="Cement Variance" type="line">
+                <field name="date" interval="day"/>
+                <field name="variance_kg_per_m3" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_rmc_cement_variance_report_list" model="ir.ui.view">
+        <field name="name">rmc.cement.variance.report.list</field>
+        <field name="model">rmc.cement.variance.report</field>
+        <field name="arch" type="xml">
+            <list string="Cement Variance" create="false" edit="false">
+                <field name="load_id"/>
+                <field name="date"/>
+                <field name="project_id"/>
+                <field name="product_id"/>
+                <field name="plant_id"/>
+                <field name="batched_qty_m3"/>
+                <field name="design_cement_kg_per_m3"/>
+                <field name="actual_cement_kg_per_m3"/>
+                <field name="variance_kg_per_m3"/>
+                <field name="variance_pct"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_rmc_cement_variance_report_search" model="ir.ui.view">
+        <field name="name">rmc.cement.variance.report.search</field>
+        <field name="model">rmc.cement.variance.report</field>
+        <field name="arch" type="xml">
+            <search string="Cement Variance">
+                <field name="project_id"/>
+                <field name="product_id"/>
+                <field name="plant_id"/>
+                <group>
+                    <filter string="Project" name="group_project" context="{'group_by': 'project_id'}"/>
+                    <filter string="Grade" name="group_product" context="{'group_by': 'product_id'}"/>
+                    <filter string="Plant" name="group_plant" context="{'group_by': 'plant_id'}"/>
+                    <filter string="Date" name="group_date" context="{'group_by': 'date:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_rmc_cement_variance_report" model="ir.actions.act_window">
+        <field name="name">Cement Variance</field>
+        <field name="res_model">rmc.cement.variance.report</field>
+        <field name="view_mode">pivot,graph,list</field>
+        <field name="search_view_id" ref="view_rmc_cement_variance_report_search"/>
+    </record>
+</odoo>

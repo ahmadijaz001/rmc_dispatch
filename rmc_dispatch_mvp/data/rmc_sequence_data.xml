@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="seq_rmc_calloff" model="ir.sequence">
+        <field name="name">RMC Call-off</field>
+        <field name="code">rmc.calloff</field>
+        <field name="prefix">RMC/CO/%(range_year)s/</field>
+        <field name="padding">4</field>
+        <field name="use_date_range" eval="True"/>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="seq_rmc_load" model="ir.sequence">
+        <field name="name">RMC Load</field>
+        <field name="code">rmc.load</field>
+        <field name="prefix">RMC/%(range_year)s/</field>
+        <field name="padding">5</field>
+        <field name="use_date_range" eval="True"/>
+        <field name="company_id" eval="False"/>
+    </record>
+
+    <record id="seq_rmc_qc_sample" model="ir.sequence">
+        <field name="name">RMC QC Sample</field>
+        <field name="code">rmc.qc.sample</field>
+        <field name="prefix">RMC/QC/%(range_year)s/</field>
+        <field name="padding">4</field>
+        <field name="use_date_range" eval="True"/>
+        <field name="company_id" eval="False"/>
+    </record>
+</odoo>
